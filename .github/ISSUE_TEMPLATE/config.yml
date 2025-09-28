@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🌟 Live Constellation Tool
+    url: https://archiecur.github.io/huggingface-agent-classifier
+    about: Try the live classification system
+  - name: 📖 Classification Guide
+    url: https://archiecur.github.io/huggingface-agent-classifier
+    about: Learn about our classification system
+  - name: 💬 Quick Questions
+    url: https://github.com/ArchieCur/huggingface-agent-classifier/discussions
+    about: Ask questions or start discussions about Constellation
