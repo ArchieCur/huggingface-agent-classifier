@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Constellation - AI Agent Discovery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            color: #334155;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 300;
+            color: #1e293b;
+            margin-bottom: 0.5rem;
+        }
+
+        .tagline {
+            font-size: 1.1rem;
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        .search-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+
+        .search-container {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-group {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .filter-label {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 0.5rem;
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            font-size: 0.875rem;
+        }
+
+        .results-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .results-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e2e8f0;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .tool-card {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.2s ease;
+        }
+
+        .tool-card:hover {
+            background: #f8fafc;
+        }
+
+        .tool-card:last-child {
+            border-bottom: none;
+        }
+
+        .tool-header {
+            display: flex;
+            justify-content: between;
+            align-items: flex-start;
+            margin-bottom: 0.75rem;
+        }
+
+        .tool-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+
+        .tool-classification {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.875rem;
+            background: #eff6ff;
+            color: #1d4ed8;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            border: 1px solid #dbeafe;
+        }
+
+        .tool-description {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .tool-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tag {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .tag-agent { background: #fef3c7; color: #92400e; }
+        .tag-behavior { background: #dbeafe; color: #1e40af; }
+        .tag-control { background: #dcfce7; color: #166534; }
+        .tag-domain { background: #fce7f3; color: #be185d; }
+        .tag-resource { background: #f3e8ff; color: #7c3aed; }
+
+        .legend {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .legend-title {
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #1e293b;
+        }
+
+        .legend-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .legend-category {
+            background: #f8fafc;
+            padding: 1rem;
+            border-radius: 8px;
+        }
+
+        .legend-category-title {
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #475569;
+            margin-bottom: 0.5rem;
+        }
+
+        .legend-item {
+            font-size: 0.8rem;
+            color: #64748b;
+            margin-bottom: 0.25rem;
+        }
+
+        .help-text {
+            font-size: 0.875rem;
+            color: #64748b;
+            text-align: center;
+            margin-top: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .filters {
+                grid-template-columns: 1fr;
+            }
+            
+            .logo {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="logo">Constellation</h1>
+            <p class="tagline">Navigate the HuggingFace universe with intelligent AI agent classification</p>
+        </div>
+
+        <div class="search-section">
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Search for AI agents, tools, or enter classification codes (e.g., A2-B3-C2)..." id="searchInput">
+            </div>
+            
+            <div class="filters">
+                <div class="filter-group">
+                    <div class="filter-label">Agent Type</div>
+                    <select class="filter-select" id="agentFilter">
+                        <option value="">All Types</option>
+                        <option value="A1">A1 - Single Agent</option>
+                        <option value="A2">A2 - Multi-Agent Team</option>
+                        <option value="A3">A3 - Hierarchical Agents</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <div class="filter-label">Behavioral Complexity</div>
+                    <select class="filter-select" id="behaviorFilter">
+                        <option value="">All Behaviors</option>
+                        <option value="B1">B1 - Reactive</option>
+                        <option value="B2">B2 - Retrospective</option>
+                        <option value="B3">B3 - Reasoning</option>
+                        <option value="B4">B4 - Adaptive</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <div class="filter-label">Control & Oversight</div>
+                    <select class="filter-select" id="controlFilter">
+                        <option value="">All Control Types</option>
+                        <option value="C1">C1 - Fully Autonomous</option>
+                        <option value="C2">C2 - Human-in-the-Loop</option>
+                        <option value="C3">C3 - Auditable</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <div class="filter-label">Domain Specificity</div>
+                    <select class="filter-select" id="domainFilter">
+                        <option value="">All Domains</option>
+                        <option value="D1">D1 - General Purpose</option>
+                        <option value="D2">D2 - Domain Specific</option>
+                        <option value="D3">D3 - Task Specific</option>
+                    </select>
+                </div>
+                
+                <div class="filter-group">
+                    <div class="filter-label">Resource Requirements</div>
+                    <select class="filter-select" id="resourceFilter">
+                        <option value="">All Resources</option>
+                        <option value="E1">E1 - Lightweight</option>
+                        <option value="E2">E2 - Standard</option>
+                        <option value="E3">E3 - High Resource</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <div class="results-header" id="resultsHeader">
+                Showing 30 AI Agents and Tools
+            </div>
+            <div id="resultsContainer">
+                <!-- Results will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-title">Classification Guide</div>
+            <div class="legend-grid">
+                <div class="legend-category">
+                    <div class="legend-category-title">Agent Type (A)</div>
+                    <div class="legend-item">A1: Single-Agent System</div>
+                    <div class="legend-item">A2: Multi-Agent Team</div>
+                    <div class="legend-item">A3: Hierarchical Agents</div>
+                </div>
+                <div class="legend-category">
+                    <div class="legend-category-title">Behavioral Complexity (B)</div>
+                    <div class="legend-item">B1: Reactive (stateless)</div>
+                    <div class="legend-item">B2: Retrospective (memory)</div>
+                    <div class="legend-item">B3: Reasoning (planning)</div>
+                    <div class="legend-item">B4: Adaptive (learns)</div>
+                </div>
+                <div class="legend-category">
+                    <div class="legend-category-title">Control & Oversight (C)</div>
+                    <div class="legend-item">C1: Fully Autonomous</div>
+                    <div class="legend-item">C2: Human-in-the-Loop</div>
+                    <div class="legend-item">C3: Auditable</div>
+                </div>
+                <div class="legend-category">
+                    <div class="legend-category-title">Domain Specificity (D)</div>
+                    <div class="legend-item">D1: General-Purpose</div>
+                    <div class="legend-item">D2: Domain-Specific</div>
+                    <div class="legend-item">D3: Task-Specific</div>
+                </div>
+                <div class="legend-category">
+                    <div class="legend-category-title">Environmental Requirements (E)</div>
+                    <div class="legend-item">E1: Lightweight (<16GB VRAM)</div>
+                    <div class="legend-item">E2: Standard (dedicated GPU)</div>
+                    <div class="legend-item">E3: High-Resource (specialized)</div>
+                </div>
+            </div>
+            <div class="help-text">
+                Use "/" for multiple codes (e.g., B2/B3 for memory + reasoning) • Search by name, classification, or description
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const tools = [
+            {
+                name: "CrewAI Framework",
+                classification: "A2-B2/B3-C2/C3-D1-E2",
+                description: "Multi-agent orchestration framework with memory and reasoning capabilities",
+                tags: ["Multi-Agent", "Retrospective", "Reasoning", "Human-Loop", "Auditable", "General-Purpose"]
+            },
+            {
+                name: "Browser Automation Agent",
+                classification: "A1-B3-C1/C3-D2-E1",
+                description: "Autonomous web browser automation with debugging logs",
+                tags: ["Single-Agent", "Reasoning", "Autonomous", "Auditable", "Domain-Specific", "Lightweight"]
+            },
+            {
+                name: "Enterprise Customer Service Agent",
+                classification: "A1-B2/B3-C2/C3-D2-E2",
+                description: "Customer service agent with conversation history and escalation paths",
+                tags: ["Single-Agent", "Retrospective", "Reasoning", "Human-Loop", "Domain-Specific"]
+            },
+            {
+                name: "Multi-Agent Coding Team",
+                classification: "A3-B3-C1/C3-D2-E2",
+                description: "Hierarchical team of coding specialists with autonomous workflow",
+                tags: ["Hierarchical", "Reasoning", "Autonomous", "Auditable", "Domain-Specific"]
+            },
+            {
+                name: "AutoGen Studio",
+                classification: "A2-B2/B3-C2-D1-E2",
+                description: "Visual multi-agent conversation framework with memory",
+                tags: ["Multi-Agent", "Retrospective", "Reasoning", "Human-Loop", "General-Purpose"]
+            },
+            {
+                name: "OpenHands IDE Integration",
+                classification: "A1-B3-C2-D2-E2",
+                description: "Code IDE integration agent with planning capabilities",
+                tags: ["Single-Agent", "Reasoning", "Human-Loop", "Domain-Specific"]
+            },
+            {
+                name: "Gradio MCP Server",
+                classification: "A1-B1-C1-D2-E2",
+                description: "Reactive server for Gradio integration without session state",
+                tags: ["Single-Agent", "Reactive", "Autonomous", "Domain-Specific"]
+            },
+            {
+                name: "Smolagents Core",
+                classification: "A1-B3-C2-D1-E1",
+                description: "Lightweight general-purpose agent toolkit",
+                tags: ["Single-Agent", "Reasoning", "Human-Loop", "General-Purpose", "Lightweight"]
+            },
+            {
+                name: "Agent Course Final Project",
+                classification: "A1-B2/B3-C1-D3-E2",
+                description: "GAIA benchmark evaluation agent with memory and reasoning",
+                tags: ["Single-Agent", "Retrospective", "Reasoning", "Autonomous", "Task-Specific"]
+            },
+            {
+                name: "HuggingGPT Clone",
+                classification: "A2-B3-C2/C3-D1-E2",
+                description: "Multi-agent orchestration system with human oversight",
+                tags: ["Multi-Agent", "Reasoning", "Human-Loop", "Auditable", "General-Purpose"]
+            },
+            {
+                name: "HF MCP Server",
+                classification: "A1-B1-C2-D1-E2",
+                description: "Stateless routing server requiring human task definition",
+                tags: ["Single-Agent", "Reactive", "Human-Loop", "General-Purpose"]
+            },
+            {
+                name: "Tiny Agents Toolkit",
+                classification: "A1-B2/B3-C2-D1-E1",
+                description: "Lightweight toolkit with memory and reasoning capabilities",
+                tags: ["Single-Agent", "Retrospective", "Reasoning", "Human-Loop", "Lightweight"]
+            },
+            {
+                name: "Benchmark Evaluator",
+                classification: "A1-B3-C3-D2-E2",
+                description: "Auditable evaluation system for AI benchmarks",
+                tags: ["Single-Agent", "Reasoning", "Auditable", "Domain-Specific"]
+            },
+            {
+                name: "Text-to-SQL Agent",
+                classification: "A1-B3-C2-D2-E2",
+                description: "Database query agent with natural language processing",
+                tags: ["Single-Agent", "Reasoning", "Human-Loop", "Domain-Specific"]
+            },
+            {
+                name: "LangChain Clone",
+                classification: "A2-B3-C2-D1-E2",
+                description: "Multi-agent orchestration framework for various tasks",
+                tags: ["Multi-Agent", "Reasoning", "Human-Loop", "General-Purpose"]
+            },
+            {
+                name: "StableDiffusion Prompt Generator",
+                classification: "A1-B2-C1-D3-E1",
+                description: "Autonomous prompt generation with memory of successful patterns",
+                tags: ["Single-Agent", "Retrospective", "Autonomous", "Task-Specific", "Lightweight"]
+            },
+            {
+                name: "AI Safety Platform",
+                classification: "A2-B3-C2/C3-D2-E2",
+                description: "Multi-agent safety monitoring with human oversight and auditing",
+                tags: ["Multi-Agent", "Reasoning", "Human-Loop", "Auditable", "Domain-Specific"]
+            },
+            {
+                name: "DeepSite v3",
+                classification: "A2-B3-C1/C3-D1-E2-v2024.1",
+                description: "Multi-model app generation platform with autonomous capabilities",
+                tags: ["Multi-Agent", "Reasoning", "Autonomous", "Auditable", "General-Purpose"]
+            },
+            {
+                name: "InstantCoder",
+                classification: "A1-B2/B3-C2-D2-E2",
+                description: "Code generation agent with memory and planning in Docker sandbox",
+                tags: ["Single-Agent", "Retrospective", "Reasoning", "Human-Loop", "Domain-Specific"]
+            },
+            {
+                name: "Jupyter Agent 2",
+                classification: "A1-B2-C2-D2-E1-v2024.1",
+                description: "Notebook automation with cell memory and human guidance",
+                tags: ["Single-Agent", "Retrospective", "Human-Loop", "Domain-Specific", "Lightweight"]
+            },
+            {
+                name: "BigCodeArena",
+                classification: "A2-B3-C3-D2-E2-v2024.1",
+                description: "Multi-agent code evaluation platform with comprehensive logging",
+                tags: ["Multi-Agent", "Reasoning", "Auditable", "Domain-Specific"]
+            },
+            {
+                name: "Kaggle Agent – AI Data Science Copilot",
+                classification: "A1-B3-C2/C3-D2-E2-v2024.1",
+                description: "Data science automation with code sanitization and human oversight",
+                tags: ["Single-Agent", "Reasoning", "Human-Loop", "Auditable", "Domain-Specific"]
+            },
+            {
+                name: "Prompt Optimization Studio",
+                classification: "A1-B3-C2-D3-E1",
+                description: "Lightweight prompt optimization tool with reasoning capabilities",
+                tags: ["Single-Agent", "Reasoning", "Human-Loop", "Task-Specific", "Lightweight"]
+            },
+            {
+                name: "Conversational Memory Agent",
+                classification: "A1-B2/B3-C2-D1-E2",
+                description: "General-purpose agent with conversation history and planning",
+                tags: ["Single-Agent", "Retrospective", "Reasoning", "Human-Loop", "General-Purpose"]
+            },
+            {
+                name: "Evaluation Harness",
+                classification: "A1-B3-C3-D2-E2",
+                description: "Comprehensive evaluation system with detailed audit trails",
+                tags: ["Single-Agent", "Reasoning", "Auditable", "Domain-Specific"]
+            },
+            {
+                name: "Synthetic Data Generator",
+                classification: "A1-B3-C2-D2-E2",
+                description: "Domain-specific data generation with human parameter setting",
+                tags: ["Single-Agent", "Reasoning", "Human-Loop", "Domain-Specific"]
+            },
+            {
+                name: "Code Tutor Agent",
+                classification: "A1-B2/B3-C2-D2-E2",
+                description: "Educational coding assistant with memory and interactive guidance",
+                tags: ["Single-Agent", "Retrospective", "Reasoning", "Human-Loop", "Domain-Specific"]
+            },
+            {
+                name: "Multi-Agent Benchmark Tool",
+                classification: "A2-B3-C3-D2-E2",
+                description: "Evaluation platform for multi-agent systems with comprehensive auditing",
+                tags: ["Multi-Agent", "Reasoning", "Auditable", "Domain-Specific"]
+            },
+            {
+                name: "Voice-Controlled Agent",
+                classification: "A1-B2-C2-D2-E1",
+                description: "Lightweight voice interface agent with conversation memory",
+                tags: ["Single-Agent", "Retrospective", "Human-Loop", "Domain-Specific", "Lightweight"]
+            },
+            {
+                name: "AI-Generated Simulation Environment",
+                classification: "A2-B3-C2-D1-E3",
+                description: "High-resource simulation platform with multi-agent coordination",
+                tags: ["Multi-Agent", "Reasoning", "Human-Loop", "General-Purpose", "High-Resource"]
+            }
+        ];
+
+        let filteredTools = [...tools];
+
+        function renderResults() {
+            const container = document.getElementById('resultsContainer');
+            const header = document.getElementById('resultsHeader');
+            
+            header.textContent = `Showing ${filteredTools.length} AI Agents and Tools`;
+            
+            if (filteredTools.length === 0) {
+                container.innerHTML = `
+                    <div style="padding: 3rem 2rem; text-align: center; color: #64748b;">
+                        <p>No tools match your current filters.</p>
+                        <p style="margin-top: 0.5rem; font-size: 0.9rem;">Try adjusting your search criteria or clearing filters.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filteredTools.map(tool => `
+                <div class="tool-card">
+                    <div class="tool-header">
+                        <div>
+                            <div class="tool-name">${tool.name}</div>
+                            <div class="tool-classification">${tool.classification}</div>
+                        </div>
+                    </div>
+                    <div class="tool-description">${tool.description}</div>
+                    <div class="tool-tags">
+                        ${tool.tags.map(tag => {
+                            const tagClass = tag.includes('Agent') || tag.includes('Hierarchical') ? 'tag-agent' :
+                                           tag.includes('Reactive') || tag.includes('Retrospective') || tag.includes('Reasoning') || tag.includes('Adaptive') ? 'tag-behavior' :
+                                           tag.includes('Autonomous') || tag.includes('Human') || tag.includes('Auditable') ? 'tag-control' :
+                                           tag.includes('General') || tag.includes('Domain') || tag.includes('Task') ? 'tag-domain' :
+                                           'tag-resource';
+                            return `<span class="tag ${tagClass}">${tag}</span>`;
+                        }).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterTools() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const agentFilter = document.getElementById('agentFilter').value;
+            const behaviorFilter = document.getElementById('behaviorFilter').value;
+            const controlFilter = document.getElementById('controlFilter').value;
+            const domainFilter = document.getElementById('domainFilter').value;
+            const resourceFilter = document.getElementById('resourceFilter').value;
+
+            filteredTools = tools.filter(tool => {
+                const matchesSearch = !searchTerm || 
+                    tool.name.toLowerCase().includes(searchTerm) ||
+                    tool.classification.toLowerCase().includes(searchTerm) ||
+                    tool.description.toLowerCase().includes(searchTerm) ||
+                    tool.tags.some(tag => tag.toLowerCase().includes(searchTerm));
+
+                const matchesAgent = !agentFilter || tool.classification.includes(agentFilter);
+                const matchesBehavior = !behaviorFilter || tool.classification.includes(behaviorFilter);
+                const matchesControl = !controlFilter || tool.classification.includes(controlFilter);
+                const matchesDomain = !domainFilter || tool.classification.includes(domainFilter);
+                const matchesResource = !resourceFilter || tool.classification.includes(resourceFilter);
+
+                return matchesSearch && matchesAgent && matchesBehavior && matchesControl && matchesDomain && matchesResource;
+            });
+
+            renderResults();
+        }
+
+        // Event listeners
+        document.getElementById('searchInput').addEventListener('input', filterTools);
+        document.getElementById('agentFilter').addEventListener('change', filterTools);
+        document.getElementById('behaviorFilter').addEventListener('change', filterTools);
+        document.getElementById('controlFilter').addEventListener('change', filterTools);
+        document.getElementById('domainFilter').addEventListener('change', filterTools);
+        document.getElementById('resourceFilter').addEventListener('change', filterTools);
+
+        // Initial render
+        renderResults();
+    </script>
+</body>
+</html>
