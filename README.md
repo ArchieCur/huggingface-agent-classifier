@@ -1,6 +1,6 @@
 # huggingface-agent-classifier
 Working repository for improving Hugging Face disovery and categorization for user seeking specific agent tools.
-This dataset represents the first 25 curated agentic AI tools from Hugging Face Spaces, classified using enhanced alphanumeric taxonomy. This will serve as the foundation for testing a classification web application.
+This dataset represents the first 30 curated agentic AI tools from Hugging Face Spaces, classified using enhanced alphanumeric taxonomy. This will serve as the foundation for testing a classification web application.
 Classification Key
 Format: A[Agent Type]-B[Behavioral Complexity]-C[Control/Oversight]-D[Domain]-E[Resources]-v[Version]
 Categories:
